@@ -32,8 +32,8 @@ ENV/
 env.bak/
 venv.bak/
 
-# ML artifacts
-models/
+# ML artifacts (saved model weights at repo root, not source packages)
+/models/
 checkpoints/
 *.pt
 *.pth
@@ -44,8 +44,8 @@ wandb/
 mlruns/
 mlartifacts/
 
-# Data
-data/
+# Data (raw data directories at repo root, not source packages)
+/data/
 *.parquet
 *.csv
 *.feather
