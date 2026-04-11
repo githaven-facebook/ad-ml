@@ -1,0 +1,94 @@
+syntax = "proto3";
+
+package ad_ml.serving;
+
+// ---------------------------------------------------------------
+// Message definitions
+// ---------------------------------------------------------------
+
+// A single feature map entry (string key -> float value).
+message FeatureValue {
+  oneof kind {
+    float float_val = 1;
+    int64 int_val   = 2;
+    string str_val  = 3;
+  }
+}
+
+// Single-sample prediction request.
+message PredictRequest {
+  string model_name = 1;                        // "user_persona" | "autobid"
+  string request_id = 2;                        // Optional trace ID
+  map<string, FeatureValue> features = 3;       // Feature name -> value
+  map<string, float> float_features = 4;        // Convenience: pre-cast floats
+  repeated float feature_vector = 5;            // Pre-packed dense feature vector
+}
+
+// Single-sample prediction response.
+message PredictResponse {
+  string request_id = 1;
+  repeated float predictions = 2;              // Model output values
+  map<string, float> named_predictions = 3;    // Named outputs (e.g., "bid_multiplier")
+  float latency_ms = 4;                        // Server-side inference latency
+  string model_version = 5;                    // Serving model version tag
+  bool cache_hit = 6;                          // Whether result came from cache
+}
+
+// Batch prediction request.
+message BatchPredictRequest {
+  string model_name = 1;
+  string batch_id = 2;
+  repeated PredictRequest requests = 3;        // Individual sample requests
+  int32 max_batch_size = 4;                    // Optional override for dynamic batching
+}
+
+// Batch prediction response.
+message BatchPredictResponse {
+  string batch_id = 1;
+  repeated PredictResponse responses = 2;
+  float total_latency_ms = 3;
+  int32 num_cache_hits = 4;
+}
+
+// Model information request.
+message ModelInfoRequest {
+  string model_name = 1;
+}
+
+// Model metadata response.
+message ModelInfoResponse {
+  string model_name = 1;
+  string version = 2;
+  string status = 3;                           // "ready" | "loading" | "error"
+  int64 loaded_at_unix = 4;                    // Unix timestamp of model load
+  map<string, string> metadata = 5;            // Arbitrary metadata (arch, num_params, etc.)
+  int64 total_predictions = 6;                 // Lifetime prediction count
+  float avg_latency_ms = 7;                    // Rolling average latency
+}
+
+// Health check request/response.
+message HealthCheckRequest {}
+
+message HealthCheckResponse {
+  bool healthy = 1;
+  string message = 2;
+  map<string, string> model_statuses = 3;      // model_name -> status
+}
+
+// ---------------------------------------------------------------
+// Service definition
+// ---------------------------------------------------------------
+
+service InferenceService {
+  // Single-sample inference.
+  rpc Predict(PredictRequest) returns (PredictResponse);
+
+  // Batched inference for throughput-optimized clients.
+  rpc BatchPredict(BatchPredictRequest) returns (BatchPredictResponse);
+
+  // Retrieve model metadata.
+  rpc GetModelInfo(ModelInfoRequest) returns (ModelInfoResponse);
+
+  // Health and readiness check.
+  rpc HealthCheck(HealthCheckRequest) returns (HealthCheckResponse);
+}
