@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import logging
-from typing import Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
 import pandas as pd
@@ -202,7 +202,7 @@ def build_user_sequence(
     user_events: pd.DataFrame,
     feature_cols: List[str],
     max_length: int = 512,
-) -> np.ndarray:
+) -> "np.ndarray[Any, np.dtype[np.float32]]":
     """Build a temporal feature sequence array for a single user.
 
     Args:
@@ -216,4 +216,5 @@ def build_user_sequence(
     user_events = user_events.sort_values("event_time")
     if len(user_events) > max_length:
         user_events = user_events.iloc[-max_length:]
-    return user_events[feature_cols].values.astype(np.float32)
+    result: np.ndarray[Any, np.dtype[np.float32]] = user_events[feature_cols].values.astype(np.float32)
+    return result

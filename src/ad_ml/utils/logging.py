@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import logging
 import sys
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, cast
 
 import structlog
 
@@ -80,7 +80,7 @@ def get_logger(name: str, **context: Any) -> structlog.stdlib.BoundLogger:
     log = structlog.get_logger(name)
     if context:
         log = log.bind(**context)
-    return log  # type: ignore[return-value]
+    return cast(structlog.stdlib.BoundLogger, log)
 
 
 def bind_request_context(

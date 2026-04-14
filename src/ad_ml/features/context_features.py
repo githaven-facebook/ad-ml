@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import logging
 import math
-from typing import Dict, List, Optional, Sequence
+from typing import Any, Dict, List, Optional, Sequence
 
 import numpy as np
 import pandas as pd
@@ -71,7 +71,7 @@ class ContextFeatureExtractor:
             + len(self.app_category_vocab)
         )
 
-    def extract(self, requests: pd.DataFrame) -> np.ndarray:
+    def extract(self, requests: pd.DataFrame) -> "np.ndarray[Any, np.dtype[np.float32]]":
         """Extract context features from a batch of auction requests.
 
         Args:
@@ -135,7 +135,7 @@ class ContextFeatureExtractor:
 
         return features
 
-    def extract_single(self, record: Dict[str, object]) -> np.ndarray:
+    def extract_single(self, record: Dict[str, object]) -> "np.ndarray[Any, np.dtype[np.float32]]":
         """Extract context features for a single auction request dict.
 
         Returns:
@@ -144,7 +144,7 @@ class ContextFeatureExtractor:
         df = pd.DataFrame([record])
         return self.extract(df)[0]
 
-    def _holiday_flags(self, timestamps: pd.Series) -> np.ndarray:
+    def _holiday_flags(self, timestamps: pd.Series) -> "np.ndarray[Any, np.dtype[np.float32]]":
         """Return 1.0 for dates that fall on a US federal holiday."""
         flags = np.zeros(len(timestamps), dtype=np.float32)
         months = timestamps.dt.month.values
@@ -169,7 +169,7 @@ class ContextFeatureExtractor:
         return offset + vocab_size
 
 
-def build_time_embedding(timestamps: Sequence[pd.Timestamp], dim: int = 16) -> np.ndarray:
+def build_time_embedding(timestamps: Sequence[pd.Timestamp], dim: int = 16) -> "np.ndarray[Any, np.dtype[np.float32]]":
     """Build sinusoidal time embeddings from timestamps.
 
     Each timestamp is encoded across multiple frequencies (hour, day, week, month).
