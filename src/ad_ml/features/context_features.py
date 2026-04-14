@@ -142,7 +142,8 @@ class ContextFeatureExtractor:
             Float32 array of shape (feature_dim,).
         """
         df = pd.DataFrame([record])
-        return self.extract(df)[0]
+        result: "np.ndarray[Any, np.dtype[np.float32]]" = self.extract(df)[0]
+        return result
 
     def _holiday_flags(self, timestamps: pd.Series) -> "np.ndarray[Any, np.dtype[np.float32]]":
         """Return 1.0 for dates that fall on a US federal holiday."""
