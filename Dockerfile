@@ -25,12 +25,12 @@ WORKDIR /app
 
 # Install Python dependencies
 COPY pyproject.toml ./
+COPY src/ ./src/
 RUN pip install --upgrade pip setuptools wheel && \
     pip install torch==2.2.0 torchvision==0.17.0 --index-url https://download.pytorch.org/whl/cu121 && \
     pip install -e ".[dev]"
 
-# Copy source
-COPY src/ ./src/
+# Copy remaining source
 COPY configs/ ./configs/
 COPY scripts/ ./scripts/
 
